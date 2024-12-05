@@ -12,6 +12,70 @@
     <link rel="stylesheet" href="assets/css/main.css" />
     <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
   </head>
+	 <script>
+        // Function to send a GET request
+        function sendGetRequest() {
+            fetch('http://localhost:3000/')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('getResponse').textContent = data;
+                })
+                .catch(error => {
+                    console.error('Error with GET request:', error);
+                });
+        }
+
+        // Function to handle POST request submission
+        function sendPostRequest(event) {
+            event.preventDefault(); // Prevent form submission default behavior
+
+            const formData = new FormData(event.target);
+            const jsonData = Object.fromEntries(formData.entries());
+
+            fetch('http://localhost:3000/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('postResponse').textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    console.error('Error with POST request:', error);
+                });
+        }
+    </script>
+
+    <h1>Express Server Interaction</h1>
+
+    <!-- GET Request Section -->
+    <section>
+        <h2>Send a GET Request</h2>
+        <button onclick="sendGetRequest()">Send GET Request</button>
+        <p><strong>Response:</strong> <span id="getResponse"></span></p>
+    </section>
+
+    <!-- POST Request Section -->
+    <section>
+        <h2>Send a POST Request</h2>
+        <form id="postForm" onsubmit="sendPostRequest(event)">
+            <label>
+                Name:
+                <input type="text" name="name" required>
+            </label>
+            <br>
+            <label>
+                Email:
+                <input type="email" name="email" required>
+            </label>
+            <br>
+            <button type="submit">Send POST Request</button>
+        </form>
+        <p><strong>Response:</strong> <pre id="postResponse"></pre></p>
+    </section>
   <body class="is-preload">
     <!-- Wrapper -->
     <div id="wrapper">
