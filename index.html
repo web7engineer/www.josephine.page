@@ -5,40 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Express Server Interaction</title>
     <script>
-        // Function to send a GET request
-        function sendGetRequest() {
-            fetch('http://localhost:3000/')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('getResponse').textContent = data;
-                })
-                .catch(error => {
-                    console.error('Error with GET request:', error);
-                });
-        }
+        const serverUrl = 'http://128.199.12.25:3000'; // Your Droplet's IPv4 address
 
-        // Function to handle POST request submission
-        function sendPostRequest(event) {
-            event.preventDefault(); // Prevent form submission default behavior
+// Function to send a GET request
+function sendGetRequest() {
+    fetch(`${serverUrl}/`)
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('getResponse').textContent = data;
+        })
+        .catch(error => {
+            console.error('Error with GET request:', error);
+        });
+}
 
-            const formData = new FormData(event.target);
-            const jsonData = Object.fromEntries(formData.entries());
+// Function to handle POST request submission
+function sendPostRequest(event) {
+    event.preventDefault(); // Prevent form submission default behavior
 
-            fetch('http://localhost:3000/submit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(jsonData)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('postResponse').textContent = JSON.stringify(data, null, 2);
-                })
-                .catch(error => {
-                    console.error('Error with POST request:', error);
-                });
-        }
+    const formData = new FormData(event.target);
+    const jsonData = Object.fromEntries(formData.entries());
+
+    fetch(`${serverUrl}/submit`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(jsonData)
+    })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('postResponse').textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(error => {
+            console.error('Error with POST request:', error);
+        });
+}
+
     </script>
 </head>
 <body>
