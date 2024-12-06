@@ -4,44 +4,88 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Express Server Interaction</title>
+    <style>
+        /* Simple styling for better user experience */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        section {
+            margin-bottom: 40px;
+        }
+        input {
+            padding: 8px;
+            margin-top: 4px;
+            margin-bottom: 12px;
+            width: 100%;
+            max-width: 300px;
+        }
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .response {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            max-width: 600px;
+            white-space: pre-wrap;
+        }
+    </style>
     <script>
         const serverUrl = 'http://128.199.12.25:3000'; // Your Droplet's IPv4 address
 
-// Function to send a GET request
-function sendGetRequest() {
-    fetch(`${serverUrl}/`)
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('getResponse').textContent = data;
-        })
-        .catch(error => {
-            console.error('Error with GET request:', error);
-        });
-}
+        // Function to send a GET request
+        function sendGetRequest() {
+            document.getElementById('getResponse').textContent = 'Loading...';
+            fetch(`${serverUrl}/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Server error: ${response.statusText}`);
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    document.getElementById('getResponse').textContent = data;
+                })
+                .catch(error => {
+                    console.error('Error with GET request:', error);
+                    document.getElementById('getResponse').textContent = `Error: ${error.message}`;
+                });
+        }
 
-// Function to handle POST request submission
-function sendPostRequest(event) {
-    event.preventDefault(); // Prevent form submission default behavior
+        // Function to handle POST request submission
+        function sendPostRequest(event) {
+            event.preventDefault(); // Prevent form submission default behavior
 
-    const formData = new FormData(event.target);
-    const jsonData = Object.fromEntries(formData.entries());
+            const formData = new FormData(event.target);
+            const jsonData = Object.fromEntries(formData.entries());
 
-    fetch(`${serverUrl}/submit`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(jsonData)
-    })
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('postResponse').textContent = JSON.stringify(data, null, 2);
-        })
-        .catch(error => {
-            console.error('Error with POST request:', error);
-        });
-}
+            document.getElementById('postResponse').textContent = 'Submitting...';
 
+            fetch(`${serverUrl}/submit`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonData)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(errData => {
+                            throw new Error(errData.errors.map(e => e.msg).join(', '));
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('postResponse').textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    console.error('Error with POST request:', error);
+                    document.getElementById('postResponse').textContent = `Error: ${error.message}`;
+                });
+        }
     </script>
 </head>
 <body>
@@ -51,26 +95,24 @@ function sendPostRequest(event) {
     <section>
         <h2>Send a GET Request</h2>
         <button onclick="sendGetRequest()">Send GET Request</button>
-        <p><strong>Response:</strong> <span id="getResponse"></span></p>
+        <p><strong>Response:</strong></p>
+        <div class="response" id="getResponse"></div>
     </section>
 
     <!-- POST Request Section -->
     <section>
         <h2>Send a POST Request</h2>
         <form id="postForm" onsubmit="sendPostRequest(event)">
-            <label>
-                Name:
-                <input type="text" name="name" required>
-            </label>
+            <label for="name">Name:</label>
+            <input type="text" name="name" id="name" required>
             <br>
-            <label>
-                Email:
-                <input type="email" name="email" required>
-            </label>
+            <label for="email">Email:</label>
+            <input type="email" name="email" id="email" required>
             <br>
             <button type="submit">Send POST Request</button>
         </form>
-        <p><strong>Response:</strong> <pre id="postResponse"></pre></p>
+        <p><strong>Response:</strong></p>
+        <div class="response" id="postResponse"></div>
     </section>
 </body>
 </html>
